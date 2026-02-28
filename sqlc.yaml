@@ -5,8 +5,8 @@ sql:
     schema: "internal/infra/database/migration"
     gen:
       go:
-        package: "tutorial"
-        out: "tutorial"
+        package: "postgres"
+        out: "internal/adapter/repository/postgres"
         sql_package: "pgx/v5"
         overrides:
         - db_type: "uuid"
