@@ -8,13 +8,24 @@ import (
 	"github.com/EduCoelhoTs/nba-predict-api/internal/core/port"
 	"github.com/EduCoelhoTs/nba-predict-api/pkg/xdate"
 	"github.com/EduCoelhoTs/nba-predict-api/pkg/xuuid"
+	"github.com/google/uuid"
 )
 
-type userRepository struct {
-	queries *sqlc.Queries
+// QueriesPort define a porta para acesso ao banco de dados (Hexagonal Architecture)
+type QueriesPort interface {
+	CreateUser(ctx context.Context, arg sqlc.CreateUserParams) error
+	GetAllUsers(ctx context.Context) ([]sqlc.AuthUser, error)
+	GetUserById(ctx context.Context, id uuid.UUID) (sqlc.AuthUser, error)
+	GetUserByEmail(ctx context.Context, email string) (sqlc.AuthUser, error)
+	UpdateUser(ctx context.Context, arg sqlc.UpdateUserParams) error
+	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
 
-func NewUserRepository(queries *sqlc.Queries) port.UserRepositoryInterface {
+type userRepository struct {
+	queries QueriesPort
+}
+
+func NewUserRepository(queries QueriesPort) port.UserRepositoryInterface {
 	return &userRepository{queries: queries}
 }
 
