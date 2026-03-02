@@ -4,11 +4,17 @@ import (
 	"fmt"
 	"net/http"
 
+	_http "github.com/EduCoelhoTs/base-hex-arq-api/internal/adapter/http"
 	userusecase "github.com/EduCoelhoTs/base-hex-arq-api/internal/application/usecase/user"
 	infraerrors "github.com/EduCoelhoTs/base-hex-arq-api/internal/infra/error"
 	"github.com/EduCoelhoTs/base-hex-arq-api/pkg/xjson"
 	"github.com/EduCoelhoTs/base-hex-arq-api/pkg/xvalidator"
 )
+
+type Controller interface {
+	GetRoutes() _http.Routes
+	Create(w http.ResponseWriter, r *http.Request)
+}
 
 type controller struct {
 	CreateUserUseCase userusecase.CreateUserUseCase

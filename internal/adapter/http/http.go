@@ -13,9 +13,7 @@ type HttpHandler interface {
 	RegisterRoutes(routes Routes) http.Handler
 }
 
-func NewHttpServer(handler HttpHandler, routes Routes, addr *string) *httpServer {
-
-	h := handler.RegisterRoutes(routes)
+func NewHttpServer(handler http.Handler, addr *string) *httpServer {
 
 	if addr == nil {
 		addr = new(string)
@@ -25,7 +23,7 @@ func NewHttpServer(handler HttpHandler, routes Routes, addr *string) *httpServer
 	return &httpServer{
 		svr: &http.Server{
 			Addr:              *addr,
-			Handler:           h,
+			Handler:           handler,
 			ReadTimeout:       30 * time.Second,
 			WriteTimeout:      30 * time.Second,
 			IdleTimeout:       60 * time.Second,

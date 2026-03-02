@@ -10,10 +10,8 @@ import (
 	_chi "github.com/EduCoelhoTs/base-hex-arq-api/internal/adapter/http/chi"
 	"github.com/EduCoelhoTs/base-hex-arq-api/internal/adapter/repository/postgres"
 	"github.com/EduCoelhoTs/base-hex-arq-api/internal/adapter/repository/postgres/sqlc"
-	"github.com/EduCoelhoTs/base-hex-arq-api/internal/application/service"
-	userusecase "github.com/EduCoelhoTs/base-hex-arq-api/internal/application/usecase/user"
+	"github.com/EduCoelhoTs/base-hex-arq-api/internal/bootstrap"
 	"github.com/EduCoelhoTs/base-hex-arq-api/internal/infra/config"
-	usercontroller "github.com/EduCoelhoTs/base-hex-arq-api/internal/infra/controller/user"
 )
 
 func startServer() error {
@@ -33,17 +31,13 @@ func startServer() error {
 
 	db := sqlc.New(conn.Db)
 
-	userRepository := postgres.NewUserRepository(db)
+	app := bootstrap.NewApp(ctx, db)
 
-	userService := service.NewUserService(ctx, userRepository)
+	chi := _chi.NewChiHandler()
 
-	userUseCase := userusecase.NewCreateUserUseCase(userService)
+	handler := chi.RegisterRoutes(app.UserController.GetRoutes())
 
-	userController := usercontroller.NewController(userUseCase)
-
-	handler := _chi.NewChiHandler()
-
-	httpServer := _http.NewHttpServer(handler, *userController.GetRoutes(), &config.Port)
+	httpServer := _http.NewHttpServer(handler, &config.Port)
 
 	if err := httpServer.Start(); err != nil {
 		return err
