@@ -3,11 +3,13 @@ package userusecase
 import (
 	"context"
 
+	"github.com/EduCoelhoTs/base-hex-arq-api/internal/core/domain"
 	"github.com/EduCoelhoTs/base-hex-arq-api/internal/core/port"
+	"github.com/EduCoelhoTs/base-hex-arq-api/pkg/xuuid"
 )
 
 type createUserUseCase struct {
-	service port.UserServiceInterface
+	repository port.UserRepositoryInterface
 }
 
 type CreateUserInput struct {
@@ -23,16 +25,17 @@ type CreateUserOutput struct {
 }
 
 type CreateUserUseCase interface {
-	Execute(ctx context.Context, input CreateUserInput) (CreateUserOutput, error)
+	Execute(ctx context.Context, input CreateUserInput) (*CreateUserOutput, error)
 }
 
-func NewCreateUserUseCase(service port.UserServiceInterface) CreateUserUseCase {
-	return &createUserUseCase{service: service}
+func NewCreateUserUseCase(repository port.UserRepositoryInterface) CreateUserUseCase {
+	return &createUserUseCase{repository: repository}
 }
 
-func (uc *createUserUseCase) Execute(ctx context.Context, input CreateUserInput) (CreateUserOutput, error) {
-	user, err := uc.service.CreateUser(
-		ctx,
+func (uc *createUserUseCase) Execute(ctx context.Context, input CreateUserInput) (*CreateUserOutput, error) {
+	id := xuuid.NewV7()
+	user := domain.NewUser(
+		id,
 		input.FirstName,
 		input.LastName,
 		input.Email,
@@ -40,9 +43,13 @@ func (uc *createUserUseCase) Execute(ctx context.Context, input CreateUserInput)
 		input.Password,
 	)
 
-	if err != nil {
-		return CreateUserOutput{}, err
+	if err := user.IsValid(); err != nil {
+		return nil, err
 	}
 
-	return CreateUserOutput{ID: user.GetID()}, nil
+	if err := uc.repository.CreateUser(ctx, user); err != nil {
+		return nil, err
+	}
+
+	return &CreateUserOutput{ID: user.GetID()}, nil
 }

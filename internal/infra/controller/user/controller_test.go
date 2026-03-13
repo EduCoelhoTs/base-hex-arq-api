@@ -15,8 +15,8 @@ import (
 
 type MockCreateUserUseCase struct{}
 
-func (m *MockCreateUserUseCase) Execute(ctx context.Context, input userusecase.CreateUserInput) (userusecase.CreateUserOutput, error) {
-	return userusecase.CreateUserOutput{ID: "12345"}, nil
+func (m *MockCreateUserUseCase) Execute(ctx context.Context, input userusecase.CreateUserInput) (*userusecase.CreateUserOutput, error) {
+	return &userusecase.CreateUserOutput{ID: "12345"}, nil
 }
 
 func TestController(t *testing.T) {
